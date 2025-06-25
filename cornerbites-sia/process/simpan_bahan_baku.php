@@ -17,39 +17,42 @@ try {
         // --- Proses Tambah/Edit Bahan Baku ---
         $bahan_baku_id = $_POST['bahan_baku_id'] ?? null;
         $name = trim($_POST['name'] ?? '');
+        $brand = trim($_POST['brand'] ?? '');
+        $type = trim($_POST['type'] ?? 'bahan');
         $unit = trim($_POST['unit'] ?? '');
+        $purchase_size = (float) ($_POST['purchase_size'] ?? 0);
         // Pastikan nama kolom di PHP sesuai dengan nama kolom di DB
         $purchase_price_per_unit = (float) ($_POST['purchase_price_per_unit'] ?? 0);
         $current_stock = (float) ($_POST['current_stock'] ?? 0); // Ubah ke float jika stok bisa desimal
 
         // Validasi dasar
-        if (empty($name) || empty($unit) || $purchase_price_per_unit <= 0 || $current_stock < 0) {
-            $_SESSION['bahan_baku_message'] = ['text' => 'Nama, satuan, harga beli per unit (harus > 0), dan stok tidak boleh kosong atau negatif.', 'type' => 'error'];
+        if (empty($name) || empty($unit) || $purchase_size <= 0 || $purchase_price_per_unit <= 0 || $current_stock < 0) {
+            $_SESSION['bahan_baku_message'] = ['text' => 'Nama, satuan, ukuran beli, harga beli per unit (harus > 0), dan stok tidak boleh kosong atau negatif.', 'type' => 'error'];
             header("Location: /cornerbites-sia/pages/bahan_baku.php");
             exit();
         }
 
         if ($bahan_baku_id) {
             // Update Bahan Baku
-            $stmt = $conn->prepare("UPDATE raw_materials SET name = ?, unit = ?, purchase_price_per_unit = ?, current_stock = ?, updated_at = CURRENT_TIMESTAMP() WHERE id = ?");
-            if ($stmt->execute([$name, $unit, $purchase_price_per_unit, $current_stock, $bahan_baku_id])) {
+            $stmt = $conn->prepare("UPDATE raw_materials SET name = ?, brand = ?, type = ?, unit = ?, default_package_quantity = ?, purchase_price_per_unit = ?, current_stock = ?, updated_at = CURRENT_TIMESTAMP() WHERE id = ?");
+            if ($stmt->execute([$name, $brand, $type, $unit, $purchase_size, $purchase_price_per_unit, $current_stock, $bahan_baku_id])) {
                 $_SESSION['bahan_baku_message'] = ['text' => 'Bahan baku berhasil diperbarui!', 'type' => 'success'];
             } else {
                 $_SESSION['bahan_baku_message'] = ['text' => 'Gagal memperbarui bahan baku.', 'type' => 'error'];
             }
         } else {
             // Tambah Bahan Baku Baru
-            // Cek duplikasi nama
-            $stmtCheck = $conn->prepare("SELECT COUNT(*) FROM raw_materials WHERE name = ?");
-            $stmtCheck->execute([$name]);
+            // Cek duplikasi nama dan brand (boleh sama nama jika brand berbeda)
+            $stmtCheck = $conn->prepare("SELECT COUNT(*) FROM raw_materials WHERE name = ? AND brand = ?");
+            $stmtCheck->execute([$name, $brand]);
             if ($stmtCheck->fetchColumn() > 0) {
-                $_SESSION['bahan_baku_message'] = ['text' => 'Nama bahan baku sudah ada. Gunakan nama lain.', 'type' => 'error'];
+                $_SESSION['bahan_baku_message'] = ['text' => 'Kombinasi nama dan brand sudah ada. Gunakan kombinasi lain.', 'type' => 'error'];
                 header("Location: /cornerbites-sia/pages/bahan_baku.php");
                 exit();
             }
 
-            $stmt = $conn->prepare("INSERT INTO raw_materials (name, unit, purchase_price_per_unit, current_stock) VALUES (?, ?, ?, ?)");
-            if ($stmt->execute([$name, $unit, $purchase_price_per_unit, $current_stock])) {
+            $stmt = $conn->prepare("INSERT INTO raw_materials (name, brand, type, unit, default_package_quantity, purchase_price_per_unit, current_stock) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            if ($stmt->execute([$name, $brand, $type, $unit, $purchase_size, $purchase_price_per_unit, $current_stock])) {
                 $_SESSION['bahan_baku_message'] = ['text' => 'Bahan baku baru berhasil ditambahkan!', 'type' => 'success'];
             } else {
                 $_SESSION['bahan_baku_message'] = ['text' => 'Gagal menambahkan bahan baku baru.', 'type' => 'error'];

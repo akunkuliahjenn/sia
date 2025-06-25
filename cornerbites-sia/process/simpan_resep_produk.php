@@ -16,6 +16,42 @@ try {
     $conn = $db;
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action = $_POST['action'] ?? 'save_recipe';
+
+        if ($action === 'update_product_info') {
+            // Handle product info update
+            $product_id = $_POST['product_id'] ?? null;
+            $production_yield = (int) ($_POST['production_yield'] ?? 1);
+            $sale_price = (float) ($_POST['sale_price'] ?? 0);
+
+            if ($product_id) {
+                $redirectUrl .= '?product_id=' . htmlspecialchars($product_id);
+            }
+
+            // Validasi
+            $errors = [];
+            if (empty($product_id)) { $errors[] = 'Produk belum dipilih.'; }
+            if ($production_yield <= 0) { $errors[] = 'Hasil produksi harus lebih besar dari 0.'; }
+            if ($sale_price < 0) { $errors[] = 'Harga jual tidak boleh negatif.'; }
+
+            if (!empty($errors)) {
+                $_SESSION['resep_message'] = ['text' => implode('<br>', $errors), 'type' => 'error'];
+                header("Location: " . $redirectUrl);
+                exit();
+            }
+
+            // Update product info
+            $stmt = $conn->prepare("UPDATE products SET production_yield = ?, sale_price = ?, updated_at = CURRENT_TIMESTAMP() WHERE id = ?");
+            if ($stmt->execute([$production_yield, $sale_price, $product_id])) {
+                $_SESSION['resep_message'] = ['text' => 'Info produk berhasil diperbarui!', 'type' => 'success'];
+            } else {
+                $_SESSION['resep_message'] = ['text' => 'Gagal memperbarui info produk.', 'type' => 'error'];
+            }
+            header("Location: " . $redirectUrl);
+            exit();
+        }
+
+        // Handle recipe item save/update
         $recipe_item_id = $_POST['recipe_item_id'] ?? null;
         $product_id = $_POST['product_id'] ?? null;
         $raw_material_id = $_POST['raw_material_id'] ?? null;
