@@ -1,3 +1,4 @@
+
 <?php
 // pages/produk.php
 // Halaman untuk manajemen data produk (daftar, tambah, edit).
@@ -8,13 +9,26 @@ require_once __DIR__ . '/../config/db.php'; // Sertakan file koneksi database
 $products = [];
 try {
     $conn = $db;
-    // Mengambil semua kolom yang relevan dari tabel products
-    // Menggunakan 'cost_price' dan 'stock' sesuai struktur DB Anda
-    $stmt = $conn->query("SELECT id, name, unit, cost_price, sale_price, stock FROM products ORDER BY name ASC");
+    
+    // Pagination setup
+    $limit_options = [10, 25, 50, 100];
+    $limit = isset($_GET['limit']) && in_array((int)$_GET['limit'], $limit_options) ? (int)$_GET['limit'] : 10;
+    $page = isset($_GET['page']) ? max((int)$_GET['page'], 1) : 1;
+    $offset = ($page - 1) * $limit;
+
+    // Hitung total produk
+    $countStmt = $conn->query("SELECT COUNT(*) FROM products");
+    $totalProducts = $countStmt->fetchColumn();
+    $totalPages = ceil($totalProducts / $limit);
+
+    // Mengambil semua kolom yang relevan dari tabel products dengan pagination
+    $stmt = $conn->prepare("SELECT id, name, unit, cost_price, sale_price, stock FROM products ORDER BY name ASC LIMIT :limit OFFSET :offset");
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $products = $stmt->fetchAll();
 } catch (PDOException $e) {
     error_log("Error di halaman Produk: " . $e->getMessage());
-    // echo "Terjadi kesalahan saat memuat data produk.";
 }
 
 // Pesan sukses atau error setelah proses simpan
@@ -84,7 +98,7 @@ if (isset($_SESSION['product_message'])) {
 
                 <!-- Daftar Produk -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Daftar Produk Anda</h3>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Daftar Produk Anda (<?php echo number_format($totalProducts); ?> produk)</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
                             <thead class="bg-gray-50">
@@ -100,15 +114,22 @@ if (isset($_SESSION['product_message'])) {
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <?php if (!empty($products)): ?>
                                     <?php foreach ($products as $product): ?>
-                                        <tr>
+                                        <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($product['name']); ?></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($product['unit']); ?></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo htmlspecialchars($product['stock']); ?></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp <?php echo number_format($product['cost_price'], 0, ',', '.'); ?></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp <?php echo number_format($product['sale_price'], 0, ',', '.'); ?></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <button onclick="editProduct(<?php echo htmlspecialchars(json_encode($product)); ?>)" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                                                <a href="/cornerbites-sia/process/simpan_produk.php?action=delete&id=<?php echo htmlspecialchars($product['id']); ?>" class="text-red-600 hover:text-red-900" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">Hapus</a>
+                                                <button onclick="editProduct(<?php echo htmlspecialchars(json_encode($product)); ?>)" 
+                                                        class="inline-flex items-center px-3 py-1 border border-indigo-300 text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2">
+                                                    Edit
+                                                </button>
+                                                <a href="/cornerbites-sia/process/simpan_produk.php?action=delete&id=<?php echo htmlspecialchars($product['id']); ?>" 
+                                                   class="inline-flex items-center px-3 py-1 border border-red-300 text-sm leading-4 font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                                   onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
+                                                    Hapus
+                                                </a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -119,6 +140,54 @@ if (isset($_SESSION['product_message'])) {
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Kontrol Navigasi dan Limit -->
+                    <div class="mt-6 flex flex-col md:flex-row justify-between items-center gap-4 px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <!-- Info Pagination -->
+                        <div class="text-sm text-gray-700">
+                            Menampilkan <?php echo number_format($offset + 1); ?> sampai <?php echo number_format(min($offset + $limit, $totalProducts)); ?> dari <?php echo number_format($totalProducts); ?> produk
+                        </div>
+
+                        <!-- Dropdown Limit -->
+                        <div class="flex items-center space-x-2">
+                            <form id="limitForm" method="get" class="flex items-center space-x-2">
+                                <label for="limitSelect" class="text-sm text-gray-700">Per halaman:</label>
+                                <select name="limit" id="limitSelect" onchange="document.getElementById('limitForm').submit()"
+                                        class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <?php foreach ($limit_options as $opt): ?>
+                                        <option value="<?php echo $opt; ?>" <?php echo ($limit == $opt) ? 'selected' : ''; ?>><?php echo $opt; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="hidden" name="page" value="1">
+                            </form>
+                        </div>
+
+                        <!-- Navigasi Halaman -->
+                        <?php if ($totalPages > 1): ?>
+                        <div class="flex items-center space-x-2">
+                            <?php if ($page > 1): ?>
+                                <a href="?limit=<?php echo $limit; ?>&page=<?php echo $page - 1; ?>" 
+                                   class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-200">‹ Prev</a>
+                            <?php endif; ?>
+
+                            <?php 
+                            $startPage = max(1, $page - 2);
+                            $endPage = min($totalPages, $page + 2);
+                            for ($i = $startPage; $i <= $endPage; $i++): 
+                            ?>
+                                <a href="?limit=<?php echo $limit; ?>&page=<?php echo $i; ?>" 
+                                   class="px-3 py-2 text-sm rounded <?php echo ($i == $page) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?> transition duration-200">
+                                    <?php echo $i; ?>
+                                </a>
+                            <?php endfor; ?>
+
+                            <?php if ($page < $totalPages): ?>
+                                <a href="?limit=<?php echo $limit; ?>&page=<?php echo $page + 1; ?>" 
+                                   class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-200">Next ›</a>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -142,6 +211,9 @@ if (isset($_SESSION['product_message'])) {
         document.getElementById('submit_button').classList.remove('bg-green-600', 'hover:bg-green-700');
         document.getElementById('submit_button').classList.add('bg-blue-600', 'hover:bg-blue-700');
         document.getElementById('cancel_edit_button').classList.remove('hidden');
+        
+        // Scroll to top to make the form visible
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // JavaScript untuk mereset form

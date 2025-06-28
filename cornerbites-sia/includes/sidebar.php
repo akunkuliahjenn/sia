@@ -34,32 +34,21 @@ $user_role = $_SESSION['user_role'] ?? 'guest'; // Default ke 'guest' jika tidak
                 <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
                 Manajemen Produk
             </a>
-            <!-- NEW: Manajemen Resep Produk -->
+            <!-- NEW: Manajemen Resep & HPP Produk -->
             <a href="/cornerbites-sia/pages/resep_produk.php" class="flex items-center py-3 px-4 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 mb-2">
                 <!-- Recipe Icon -->
                 <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                Manajemen Resep Produk
+                Manajemen Resep & HPP Produk
             </a>
             <a href="/cornerbites-sia/pages/bahan_baku.php" class="flex items-center py-3 px-4 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 mb-2">
                 <!-- Raw Materials Icon -->
                 <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7v.01M12 7v.01M16 7v.01M9 19h6a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 Manajemen Bahan Baku
             </a>
-            <!-- NEW: Perhitungan HPP Manual -->
-            <a href="/cornerbites-sia/pages/hitung_hpp_manual.php" class="flex items-center py-3 px-4 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 mb-2">
-                <!-- Calculation Icon -->
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c-1.381 0-2.25-.829-2.25-2.25V7.5M9 19c0 1.421-.869 2.25-2.25 2.25H4.5A2.25 2.25 0 012.25 19V6.75A2.25 2.25 0 014.5 4.5h1.5c1.421 0 2.25.869 2.25 2.25V19zm10-5a2 2 0 11-4 0 2 2 0 014 0zm-7 4a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-                Hitung HPP Manual
-            </a>
-            <a href="/cornerbites-sia/pages/laporan.php?type=laba_rugi" class="flex items-center py-3 px-4 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 mb-2">
-                <!-- Laporan Laba Rugi Icon -->
+            <a href="/cornerbites-sia/pages/laporan_keuangan.php" class="flex items-center py-3 px-4 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 mb-2">
+                <!-- Laporan Keuangan Icon -->
                 <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 2v-6m2 9H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Laporan Laba Rugi
-            </a>
-            <a href="/cornerbites-sia/pages/laporan.php?type=neraca" class="flex items-center py-3 px-4 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 mb-2">
-                <!-- Laporan Neraca Icon -->
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2H10a2 2 0 01-2-2v-4m0 0H5c-1.5 0-2.25-.85-2.25-2.25S3.5 9.5 5 9.5h1"></path></svg>
-                Laporan Neraca
+                Laporan Keuangan
             </a>
         <?php elseif ($user_role == 'admin'): ?>
             <!-- Menu untuk ADMIN -->
