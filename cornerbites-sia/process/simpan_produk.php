@@ -17,7 +17,9 @@ try {
         // --- Proses Tambah/Edit Produk ---
         $product_id = $_POST['product_id'] ?? null;
         $name = trim($_POST['name'] ?? '');
-        $unit = trim($_POST['unit'] ?? ''); // Menggunakan 'unit' sesuai DB Anda
+        $unit_select = trim($_POST['unit'] ?? '');
+        $unit_custom = trim($_POST['unit_custom'] ?? '');
+        $unit = ($unit_select === 'custom') ? $unit_custom : $unit_select;
         $stock = (int) ($_POST['stock'] ?? 0); // Menggunakan 'stock' sesuai DB Anda
         $cost_price = (float) ($_POST['cost_price'] ?? 0); // Menggunakan 'cost_price' sesuai DB Anda
         $sale_price = (float) ($_POST['sale_price'] ?? 0);

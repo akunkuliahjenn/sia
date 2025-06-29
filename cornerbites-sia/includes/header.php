@@ -8,12 +8,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Informasi Akuntansi UMKM - Corner Bites</title>
-    <!-- Tailwind CSS CDN - Gunakan ini untuk pengembangan cepat.
-         Untuk produksi, disarankan untuk mengkompilasi Tailwind secara lokal. -->
+    <!-- Tailwind CSS via CDN untuk development -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Link ke file CSS Tailwind yang sudah dikompilasi lokal -->
-    <!-- Jika Anda mengkompilasi Tailwind secara lokal, gunakan ini: -->
-    <link href="/cornerbites-sia/assets/css/style.css" rel="stylesheet">
+    <!-- Custom CSS for theming -->
+    <link rel="stylesheet" href="/cornerbites-sia/assets/css/style.css">
+    <title><?php echo $page_title ?? 'Corner Bites SIA'; ?></title>
 
     <!-- Font Inter dari Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,4 +33,6 @@
     </style>
 </head>
 <body class="bg-gray-100 antialiased">
+    <!-- Theme Management Script -->
+    <script src="/cornerbites-sia/assets/js/theme.js"></script>
     <!-- Konten body akan dilanjutkan di file lain (sidebar, main content) -->

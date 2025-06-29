@@ -169,40 +169,74 @@ try {
     $message = "Terjadi kesalahan saat memuat data resep atau produk/bahan baku.";
     $message_type = "error";
 }
-
-// Fungsi helper untuk membangun URL pagination dengan mempertahankan parameter lain
-function buildPaginationUrl($baseUrl, $paramsToUpdate) {
-    $queryParams = $_GET;
-    foreach ($paramsToUpdate as $key => $value) {
-        $queryParams[$key] = $value;
-    }
-    return $baseUrl . '?' . http_build_query($queryParams);
-}
-
 ?>
 
 <?php include_once __DIR__ . '/../includes/header.php'; ?>
-<div class="flex h-screen bg-gray-100 font-sans">
+<div class="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
     <?php include_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <div class="flex-1 flex flex-col">
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-            <div class="container mx-auto max-w-7xl">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6">Manajemen Resep & HPP Produk</h1>
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top Bar/Header -->
+        <header class="flex items-center justify-between h-16 bg-white border-b border-gray-200 px-6 shadow-sm backdrop-blur-sm bg-white/95">
+            <div class="flex items-center space-x-3">
+                <div class="w-2 h-8 bg-gradient-to-b from-orange-500 to-orange-600 rounded-full"></div>
+                <h1 class="text-xl font-bold text-gray-800">Manajemen Resep & HPP Produk</h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-semibold"><?php echo strtoupper(substr($_SESSION['username'] ?? 'U', 0, 1)); ?></span>
+                </div>
+                <span class="text-gray-600 font-medium">Halo, <?php echo htmlspecialchars($_SESSION['username'] ?? 'Pengguna'); ?>!</span>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+            <div class="max-w-7xl mx-auto">
+                <!-- Header Section -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Manajemen Resep & HPP Produk</h1>
+                    <p class="text-gray-600">Kelola resep produk dan hitung HPP (Harga Pokok Produksi) untuk analisis profitabilitas bisnis Anda.</p>
+                </div>
 
                 <!-- Pesan Notifikasi -->
                 <?php if (!empty($message)): ?>
-                    <div class="p-3 mb-4 text-sm rounded-lg <?php echo $message_type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'; ?>" role="alert">
-                        <?php echo htmlspecialchars($message); ?>
+                    <div class="mb-6 p-4 rounded-lg border-l-4 <?php echo ($message_type == 'success' ? 'bg-green-50 border-green-400 text-green-700' : 'bg-red-50 border-red-400 text-red-700'); ?>" role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <?php if ($message_type == 'success'): ?>
+                                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                <?php else: ?>
+                                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                <?php endif; ?>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium"><?php echo htmlspecialchars($message); ?></p>
+                            </div>
+                        </div>
                     </div>
                 <?php endif; ?>
 
                 <!-- Bagian Pilih Produk -->
-                <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 md:mb-8">
-                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-4">Pilih Produk</h2>
-                    <div class="mb-4">
-                        <label for="product_select" class="block text-gray-700 text-sm font-bold mb-2">Pilih Produk untuk Dikelola Resepnya:</label>
-                        <select id="product_select" onchange="if(this.value) window.location.href = 'resep_produk.php?product_id=' + this.value;" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+                    <div class="flex items-center mb-6">
+                        <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900">Pilih Produk</h3>
+                            <p class="text-sm text-gray-600 mt-1">Pilih produk untuk mengelola resep dan menghitung HPP</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="product_select" class="block text-sm font-semibold text-gray-700 mb-2">Pilih Produk untuk Dikelola Resepnya:</label>
+                        <select id="product_select" onchange="if(this.value) window.location.href = 'resep_produk.php?product_id=' + this.value;" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
                             <option value="">-- Pilih Produk --</option>
                             <?php foreach ($products as $product): ?>
                                 <option value="<?php echo htmlspecialchars($product['id']); ?>" <?php echo $selectedProductId == $product['id'] ? 'selected' : ''; ?>>
@@ -215,28 +249,52 @@ function buildPaginationUrl($baseUrl, $paramsToUpdate) {
 
                 <?php if ($selectedProductId && $selectedProduct): ?>
                     <!-- Bagian Kalkulasi HPP -->
-                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 md:mb-8">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-4">📊 Kalkulasi HPP & Profit</h2>
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="p-2 bg-green-100 rounded-lg mr-3">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Kalkulasi HPP & Profit</h3>
+                                <p class="text-sm text-gray-600 mt-1">Analisis biaya produksi dan tingkat keuntungan produk</p>
+                            </div>
+                        </div>
                         
                         <!-- Form Update Produk Info -->
                         <form action="../process/simpan_resep_produk.php" method="POST" class="mb-6">
                             <input type="hidden" name="action" value="update_product_info">
                             <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($selectedProductId); ?>">
                             
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                                 <div>
-                                    <label for="production_yield" class="block text-gray-700 text-sm font-bold mb-2">Hasil Produksi (Unit):</label>
-                                    <input type="number" step="1" id="production_yield" name="production_yield" value="<?php echo htmlspecialchars($selectedProduct['production_yield'] ?? 1); ?>" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" min="1" required>
-                                    <p class="text-xs text-gray-500 mt-1">Berapa unit produk yang dihasilkan dari 1 batch resep</p>
+                                    <label for="production_yield" class="block text-sm font-semibold text-gray-700 mb-2">Hasil Produksi (Unit)</label>
+                                    <input type="number" step="1" id="production_yield" name="production_yield" value="<?php echo htmlspecialchars($selectedProduct['production_yield'] ?? 1); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" min="1" required>
+                                    <p class="text-xs text-gray-500 mt-2 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 000 16zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Berapa unit produk yang dihasilkan dari 1 batch resep
+                                    </p>
                                 </div>
                                 
                                 <div>
-                                    <label for="sale_price" class="block text-gray-700 text-sm font-bold mb-2">Harga Jual per Unit (Rp):</label>
-                                    <input type="number" step="1" id="sale_price" name="sale_price" value="<?php echo htmlspecialchars($selectedProduct['sale_price'] ?? 0); ?>" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" min="0" required>
+                                    <label for="sale_price" class="block text-sm font-semibold text-gray-700 mb-2">Harga Jual per Unit</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 text-sm font-medium">Rp</span>
+                                        </div>
+                                        <input type="text" id="sale_price_display" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" placeholder="Masukkan harga jual" oninput="formatRupiah(this, 'sale_price')" value="<?php echo $selectedProduct['sale_price'] ? number_format($selectedProduct['sale_price'], 0, ',', '.') : ''; ?>" required>
+                                        <input type="hidden" id="sale_price" name="sale_price" value="<?php echo htmlspecialchars($selectedProduct['sale_price'] ?? 0); ?>" required>
+                                    </div>
                                 </div>
                                 
                                 <div class="flex items-end">
-                                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline w-full">
+                                    <button type="submit" class="inline-flex items-center w-full px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                        </svg>
                                         Update Info Produk
                                     </button>
                                 </div>
@@ -247,59 +305,122 @@ function buildPaginationUrl($baseUrl, $paramsToUpdate) {
                         <?php if ($hppCalculation): ?>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <h3 class="text-sm font-bold text-blue-800 mb-2">Biaya Bahan per Batch</h3>
-                                    <p class="text-xl font-bold text-blue-900">Rp <?php echo number_format($hppCalculation['total_cost_per_batch'], 0, ',', '.'); ?></p>
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-bold text-blue-800 mb-1">Biaya Bahan per Batch</h3>
+                                            <p class="text-xl font-bold text-blue-900">Rp <?php echo number_format($hppCalculation['total_cost_per_batch'], 0, ',', '.'); ?></p>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                                    <h3 class="text-sm font-bold text-indigo-800 mb-2">HPP per Unit</h3>
-                                    <p class="text-xl font-bold text-indigo-900">Rp <?php echo number_format($hppCalculation['hpp_per_unit'], 0, ',', '.'); ?></p>
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-indigo-100 rounded-lg mr-3">
+                                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-bold text-indigo-800 mb-1">HPP per Unit</h3>
+                                            <p class="text-xl font-bold text-indigo-900">Rp <?php echo number_format($hppCalculation['hpp_per_unit'], 0, ',', '.'); ?></p>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div class="bg-<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'green' : 'red'; ?>-50 border border-<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'green' : 'red'; ?>-200 rounded-lg p-4">
-                                    <h3 class="text-sm font-bold text-<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'green' : 'red'; ?>-800 mb-2">Profit per Unit</h3>
-                                    <p class="text-xl font-bold text-<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'green' : 'red'; ?>-900">Rp <?php echo number_format($hppCalculation['profit_per_unit'], 0, ',', '.'); ?></p>
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'green' : 'red'; ?>-100 rounded-lg mr-3">
+                                            <svg class="w-5 h-5 text-<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'green' : 'red'; ?>-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' : 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6'; ?>"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-bold text-<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'green' : 'red'; ?>-800 mb-1">Profit per Unit</h3>
+                                            <p class="text-xl font-bold text-<?php echo $hppCalculation['profit_per_unit'] >= 0 ? 'green' : 'red'; ?>-900">Rp <?php echo number_format($hppCalculation['profit_per_unit'], 0, ',', '.'); ?></p>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                                    <h3 class="text-sm font-bold text-purple-800 mb-2">Margin Profit</h3>
-                                    <p class="text-xl font-bold text-purple-900"><?php echo number_format($hppCalculation['profit_margin_percent'], 1); ?>%</p>
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-purple-100 rounded-lg mr-3">
+                                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-bold text-purple-800 mb-1">Margin Profit</h3>
+                                            <p class="text-xl font-bold text-purple-900"><?php echo number_format($hppCalculation['profit_margin_percent'], 1); ?>%</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Detail Breakdown -->
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-bold text-gray-800 mb-3">Detail Breakdown Biaya:</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                                    </svg>
+                                    Detail Breakdown Biaya:
+                                </h4>
+                                <div class="space-y-3">
                                     <?php foreach ($hppCalculation['recipe_details'] as $detail): ?>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-gray-700">
-                                                <?php echo htmlspecialchars($detail['name']); ?> 
-                                                <span class="text-xs text-gray-500">(<?php echo number_format($detail['quantity_used'], 2); ?> <?php echo htmlspecialchars($detail['unit_measurement']); ?>)</span>
-                                            </span>
-                                            <span class="font-medium text-gray-900">Rp <?php echo number_format($detail['cost_per_item'], 0, ',', '.'); ?></span>
+                                        <div class="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200">
+                                            <div class="flex-1">
+                                                <span class="font-medium text-gray-900"><?php echo htmlspecialchars($detail['name']); ?></span>
+                                            </div>
+                                            <div class="flex-1 text-center">
+                                                <span class="text-sm text-gray-600">
+                                                    <?php echo number_format($detail['quantity_used'], 0); ?> <?php echo htmlspecialchars($detail['unit_measurement']); ?>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1 text-right">
+                                                <span class="font-semibold text-gray-900">Rp <?php echo number_format($detail['cost_per_item'], 0, ',', '.'); ?></span>
+                                            </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
                         <?php else: ?>
-                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                                <p class="text-yellow-800">Tambahkan item resep terlebih dahulu untuk melihat kalkulasi HPP</p>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                                <svg class="w-12 h-12 text-yellow-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                                <p class="text-yellow-800 font-medium">Tambahkan item resep terlebih dahulu untuk melihat kalkulasi HPP</p>
+                                <p class="text-yellow-600 text-sm mt-1">Gunakan form di bawah untuk menambahkan bahan baku atau kemasan ke resep</p>
                             </div>
                         <?php endif; ?>
                     </div>
 
                     <!-- Form Tambah/Edit Item Resep -->
-                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 md:mb-8">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-4" id="form-resep-title">Tambah Item ke Resep</h2>
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="p-2 bg-orange-100 rounded-lg mr-3">
+                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900" id="form-resep-title">Tambah Item ke Resep</h3>
+                                <p class="text-sm text-gray-600 mt-1">Tambahkan bahan baku atau kemasan yang digunakan dalam resep produk</p>
+                            </div>
+                        </div>
+                        
                         <form action="../process/simpan_resep_produk.php" method="POST">
                             <input type="hidden" name="recipe_item_id" id="recipe_item_id">
                             <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($selectedProductId); ?>">
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="raw_material_id" class="block text-gray-700 text-sm font-bold mb-2">Bahan Baku/Kemasan:</label>
-                                    <select id="raw_material_id" name="raw_material_id" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                    <label for="raw_material_id" class="block text-sm font-semibold text-gray-700 mb-2">Bahan Baku/Kemasan</label>
+                                    <select id="raw_material_id" name="raw_material_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" required>
                                         <option value="">-- Pilih Bahan Baku/Kemasan --</option>
                                         <?php foreach ($rawMaterialsAndPackaging as $item): ?>
                                             <option value="<?php echo htmlspecialchars($item['id']); ?>" data-unit="<?php echo htmlspecialchars($item['unit']); ?>" data-type="<?php echo htmlspecialchars($item['type']); ?>">
@@ -310,26 +431,37 @@ function buildPaginationUrl($baseUrl, $paramsToUpdate) {
                                 </div>
 
                                 <div>
-                                    <label for="quantity_used" class="block text-gray-700 text-sm font-bold mb-2">Jumlah Digunakan dalam Resep:</label>
-                                    <input type="number" step="0.001" id="quantity_used" name="quantity_used" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" min="0" placeholder="Contoh: 250, 1.5" required>
+                                    <label for="quantity_used" class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Digunakan dalam Resep</label>
+                                    <input type="number" step="0.001" id="quantity_used" name="quantity_used" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" min="0" placeholder="Contoh: 250, 1.5" required>
                                 </div>
 
                                 <div class="md:col-span-2">
-                                    <label for="unit_measurement" class="block text-gray-700 text-sm font-bold mb-2">Satuan Pengukuran Resep:</label>
-                                    <select id="unit_measurement" name="unit_measurement" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                    <label for="unit_measurement" class="block text-sm font-semibold text-gray-700 mb-2">Satuan Pengukuran Resep</label>
+                                    <select id="unit_measurement" name="unit_measurement" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200" required>
                                         <?php foreach ($recipeUnitOptions as $unitOption): ?>
                                             <option value="<?php echo htmlspecialchars($unitOption); ?>"><?php echo htmlspecialchars($unitOption); ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <p class="text-xs text-gray-500 mt-1">Ini adalah satuan yang akan digunakan dalam resep Anda (contoh: gram, ml). Pastikan konsisten dengan input 'Jumlah Digunakan'.</p>
+                                    <p class="text-xs text-gray-500 mt-2 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 000 16zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Ini adalah satuan yang akan digunakan dalam resep Anda (contoh: gram, ml). Pastikan konsisten dengan input 'Jumlah Digunakan'.
+                                    </p>
                                 </div>
                             </div>
 
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mt-6 gap-4">
-                                <button type="submit" id="submit_resep_button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline">
+                            <div class="flex items-center gap-4 mt-6">
+                                <button type="submit" id="submit_resep_button" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                     Tambah Item Resep
                                 </button>
-                                <button type="button" id="cancel_edit_resep_button" class="hidden bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" onclick="resetResepForm()">
+                                <button type="button" id="cancel_edit_resep_button" class="hidden inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200" onclick="resetResepForm()">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
                                     Batal Edit
                                 </button>
                             </div>
@@ -337,81 +469,182 @@ function buildPaginationUrl($baseUrl, $paramsToUpdate) {
                     </div>
 
                     <!-- Bagian Daftar Resep Produk -->
-                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-4">📋 Daftar Resep: <?php echo htmlspecialchars($selectedProduct['name']); ?></h2>
-                        
-                        <div class="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center space-y-2 md:space-y-0 gap-2">
-                            <div class="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto">
-                                <input type="text" id="search_recipe" placeholder="Cari bahan dalam resep..." value="<?php echo htmlspecialchars($searchQueryRecipe); ?>" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full md:w-auto">
-                                <select id="recipe_limit" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full md:w-auto">
-                                    <?php foreach ($recipesLimitOptions as $option): ?>
-                                        <option value="<?php echo $option; ?>" <?php echo $recipesLimit == $option ? 'selected' : ''; ?>><?php echo $option; ?> per halaman</option>
-                                    <?php endforeach; ?>
-                                </select>
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-purple-100 rounded-lg mr-3">
+                                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Daftar Resep: <?php echo htmlspecialchars($selectedProduct['name']); ?></h3>
+                                        <p class="text-sm text-gray-600">Kelola dan pantau semua item dalam resep produk</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-right">
+                                        <span class="text-sm text-gray-500">Total:</span>
+                                        <span class="text-lg font-bold text-purple-600 ml-1"><?php echo number_format($totalRecipesRows); ?> item</span>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-sm text-gray-600">Total: <?php echo $totalRecipesRows; ?> item</p>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                            <?php if (!empty($productRecipes)): ?>
-                                <?php foreach ($productRecipes as $item): ?>
-                                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <div>
-                                                <h3 class="font-bold text-gray-800 text-sm md:text-base"><?php echo htmlspecialchars($item['raw_material_name']); ?></h3>
-                                                <?php if ($item['raw_material_brand']): ?>
-                                                    <p class="text-xs text-gray-500">Merek: <?php echo htmlspecialchars($item['raw_material_brand']); ?></p>
+                        <!-- Filter dan Search -->
+                        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 gap-4">
+                                <div class="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-3 w-full md:w-auto">
+                                    <div class="relative w-full md:w-auto">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <input type="text" id="search_recipe" placeholder="Cari bahan dalam resep..." value="<?php echo htmlspecialchars($searchQueryRecipe); ?>" class="pl-10 w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+                                    </div>
+                                    <select id="recipe_limit" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+                                        <?php foreach ($recipesLimitOptions as $option): ?>
+                                            <option value="<?php echo $option; ?>" <?php echo $recipesLimit == $option ? 'selected' : ''; ?>><?php echo $option; ?> per halaman</option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                                <?php if (!empty($productRecipes)): ?>
+                                    <?php foreach ($productRecipes as $item): ?>
+                                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+                                            <div class="flex justify-between items-start mb-3">
+                                                <div class="flex-1">
+                                                    <h4 class="font-bold text-gray-800 text-sm md:text-base"><?php echo htmlspecialchars($item['raw_material_name']); ?></h4>
+                                                    <?php if ($item['raw_material_brand']): ?>
+                                                        <p class="text-xs text-gray-500 mt-1">Merek: <?php echo htmlspecialchars($item['raw_material_brand']); ?></p>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <span class="<?php echo $item['raw_material_type'] === 'bahan' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'; ?> text-xs px-2 py-1 rounded flex-shrink-0">
+                                                    <?php echo htmlspecialchars(ucfirst($item['raw_material_type'])); ?>
+                                                </span>
+                                            </div>
+                                            <div class="text-sm text-gray-600 space-y-2 mb-4">
+                                                <div class="flex justify-between">
+                                                    <span class="font-medium">Komposisi:</span>
+                                                    <span><?php echo number_format($item['quantity_used'], 0); ?> <?php echo htmlspecialchars($item['unit_measurement']); ?></span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <span class="font-medium">Harga Beli:</span>
+                                                    <span>Rp <?php echo number_format($item['purchase_price_per_unit'], 0, ',', '.'); ?></span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <span class="font-medium">Satuan Stok:</span>
+                                                    <span><?php echo htmlspecialchars($item['raw_material_stock_unit']); ?></span>
+                                                </div>
+                                                <?php if ($item['default_package_quantity'] !== null): ?>
+                                                    <div class="flex justify-between">
+                                                        <span class="font-medium">Volume Paket:</span>
+                                                        <span><?php echo number_format($item['default_package_quantity'], 0); ?> <?php echo htmlspecialchars($item['raw_material_stock_unit']); ?></span>
+                                                    </div>
                                                 <?php endif; ?>
                                             </div>
-                                            <span class="<?php echo $item['raw_material_type'] === 'bahan' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'; ?> text-xs px-2 py-1 rounded flex-shrink-0">
-                                                <?php echo htmlspecialchars(ucfirst($item['raw_material_type'])); ?>
-                                            </span>
+                                            <div class="flex items-center space-x-2">
+                                                <button onclick="editResepItem(<?php echo htmlspecialchars(json_encode($item)); ?>)" class="inline-flex items-center px-3 py-1 border border-indigo-300 text-xs font-medium rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
+                                                    Edit
+                                                </button>
+                                                <a href="../process/simpan_resep_produk.php?action=delete&id=<?php echo $item['id']; ?>&product_id=<?php echo htmlspecialchars($selectedProductId); ?>" class="inline-flex items-center px-3 py-1 border border-red-300 text-xs font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200" onclick="return confirm('Hapus item ini dari resep?');">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                    Hapus
+                                                </a>
+                                            </div>
                                         </div>
-                                        <div class="text-sm text-gray-600 space-y-1">
-                                            <p><strong>Komposisi:</strong> <?php echo number_format($item['quantity_used'], 3, ',', '.'); ?> <?php echo htmlspecialchars($item['unit_measurement']); ?></p>
-                                            <p><strong>Harga Beli:</strong> Rp <?php echo number_format($item['purchase_price_per_unit'], 0, ',', '.'); ?></p>
-                                            <p><strong>Satuan Stok:</strong> <?php echo htmlspecialchars($item['raw_material_stock_unit']); ?></p>
-                                            <?php if ($item['default_package_quantity'] !== null): ?>
-                                                <p><strong>Volume Paket:</strong> <?php echo number_format($item['default_package_quantity'], 3, ',', '.'); ?> <?php echo htmlspecialchars($item['raw_material_stock_unit']); ?></p>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="mt-3 flex flex-col md:flex-row space-y-1 md:space-y-0 md:space-x-2">
-                                            <button onclick="editResepItem(<?php echo htmlspecialchars(json_encode($item)); ?>)" class="text-xs bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded">Edit</button>
-                                            <a href="../process/simpan_resep_produk.php?action=delete&id=<?php echo $item['id']; ?>&product_id=<?php echo htmlspecialchars($selectedProductId); ?>" class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-center" onclick="return confirm('Hapus item ini dari resep?');">Hapus</a>
-                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="col-span-full text-center py-12">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <p class="text-gray-500 text-lg font-medium">Belum ada item dalam resep produk ini</p>
+                                        <p class="text-gray-400 text-sm mt-1">Mulai tambahkan bahan baku atau kemasan menggunakan form di atas</p>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <div class="col-span-full text-center py-8 text-gray-500">
-                                    Belum ada item dalam resep produk ini.
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Pagination Resep -->
-                        <?php if ($totalRecipesPages > 1): ?>
-                            <div class="flex flex-wrap justify-center items-center space-x-1 space-y-1">
-                                <?php if ($recipesPage > 1): ?>
-                                    <a href="<?php echo buildPaginationUrl('/cornerbites-sia/pages/resep_produk.php', ['recipe_page' => $recipesPage - 1]); ?>" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">‹ Prev</a>
-                                <?php endif; ?>
-                                
-                                <?php 
-                                $startPage = max(1, $recipesPage - 2);
-                                $endPage = min($totalRecipesPages, $recipesPage + 2);
-                                for ($i = $startPage; $i <= $endPage; $i++): 
-                                ?>
-                                    <a href="<?php echo buildPaginationUrl('/cornerbites-sia/pages/resep_produk.php', ['recipe_page' => $i]); ?>" class="px-3 py-2 text-sm <?php echo $i == $recipesPage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'; ?> rounded"><?php echo $i; ?></a>
-                                <?php endfor; ?>
-                                
-                                <?php if ($recipesPage < $totalRecipesPages): ?>
-                                    <a href="<?php echo buildPaginationUrl('/cornerbites-sia/pages/resep_produk.php', ['recipe_page' => $recipesPage + 1]); ?>" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next ›</a>
                                 <?php endif; ?>
                             </div>
-                        <?php endif; ?>
+
+                            <!-- Pagination Resep -->
+                            <?php if ($totalRecipesPages > 1): ?>
+                            <div class="border-t border-gray-200 pt-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1 flex justify-between sm:hidden">
+                                        <?php if ($recipesPage > 1): ?>
+                                            <a href="<?php echo 'resep_produk.php?' . http_build_query(array_merge($_GET, ['recipe_page' => $recipesPage - 1])); ?>" 
+                                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+                                        <?php endif; ?>
+                                        <?php if ($recipesPage < $totalRecipesPages): ?>
+                                            <a href="<?php echo 'resep_produk.php?' . http_build_query(array_merge($_GET, ['recipe_page' => $recipesPage + 1])); ?>" 
+                                               class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                        <div>
+                                            <p class="text-sm text-gray-700">
+                                                Menampilkan <span class="font-medium"><?php echo number_format($recipesOffset + 1); ?></span> sampai 
+                                                <span class="font-medium"><?php echo number_format(min($recipesOffset + $recipesLimit, $totalRecipesRows)); ?></span> dari 
+                                                <span class="font-medium"><?php echo number_format($totalRecipesRows); ?></span> item
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                                <?php if ($recipesPage > 1): ?>
+                                                    <a href="<?php echo 'resep_produk.php?' . http_build_query(array_merge($_GET, ['recipe_page' => $recipesPage - 1])); ?>" 
+                                                       class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                        <span class="sr-only">Previous</span>
+                                                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </a>
+                                                <?php endif; ?>
+
+                                                <?php 
+                                                $startPage = max(1, $recipesPage - 2);
+                                                $endPage = min($totalRecipesPages, $recipesPage + 2);
+                                                for ($i = $startPage; $i <= $endPage; $i++): 
+                                                ?>
+                                                    <a href="<?php echo 'resep_produk.php?' . http_build_query(array_merge($_GET, ['recipe_page' => $i])); ?>" 
+                                                       class="relative inline-flex items-center px-4 py-2 border text-sm font-medium <?php echo ($i == $recipesPage) ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'; ?>">
+                                                        <?php echo $i; ?>
+                                                    </a>
+                                                <?php endfor; ?>
+
+                                                <?php if ($recipesPage < $totalRecipesPages): ?>
+                                                    <a href="<?php echo 'resep_produk.php?' . http_build_query(array_merge($_GET, ['recipe_page' => $recipesPage + 1])); ?>" 
+                                                       class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                        <span class="sr-only">Next</span>
+                                                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </a>
+                                                <?php endif; ?>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php else: ?>
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-600">
-                        <p>Silakan pilih produk dari daftar di atas untuk mulai mengelola resepnya.</p>
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
+                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Pilih Produk untuk Memulai</h3>
+                        <p class="text-gray-600">Silakan pilih produk dari daftar di atas untuk mulai mengelola resep dan menghitung HPP</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -419,100 +652,6 @@ function buildPaginationUrl($baseUrl, $paramsToUpdate) {
     </div>
 </div>
 
-<!-- JavaScript untuk Edit Form Resep dan Real-time Search -->
-<script>
-    // Definisikan recipeUnitOptions di JavaScript untuk reset form yang benar
-    const recipeUnitOptions = <?php echo json_encode($recipeUnitOptions); ?>;
-
-    function editResepItem(item) {
-        document.getElementById('recipe_item_id').value = item.id;
-        document.getElementById('raw_material_id').value = item.raw_material_id;
-        document.getElementById('quantity_used').value = item.quantity_used;
-        document.getElementById('unit_measurement').value = item.unit_measurement;
-
-        document.getElementById('form-resep-title').textContent = 'Edit Item Resep';
-        const submitButton = document.getElementById('submit_resep_button');
-        const cancelButton = document.getElementById('cancel_edit_resep_button');
-        
-        submitButton.textContent = 'Update Item Resep';
-        submitButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-        submitButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
-        cancelButton.classList.remove('hidden');
-
-        // Smooth scroll to form
-        document.getElementById('form-resep-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function resetResepForm() {
-        document.getElementById('recipe_item_id').value = '';
-        document.getElementById('raw_material_id').value = '';
-        document.getElementById('quantity_used').value = '';
-        document.getElementById('unit_measurement').value = recipeUnitOptions[0];
-
-        document.getElementById('form-resep-title').textContent = 'Tambah Item ke Resep';
-        const submitButton = document.getElementById('submit_resep_button');
-        const cancelButton = document.getElementById('cancel_edit_resep_button');
-        
-        submitButton.textContent = 'Tambah Item Resep';
-        submitButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-        submitButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
-        cancelButton.classList.add('hidden');
-    }
-
-    // Real-time search dengan debouncing
-    let searchTimeoutRecipe;
-    let limitTimeoutRecipe;
-
-    function applySearchRealtimeRecipe(searchTerm, limit = null) {
-        let currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('search_recipe', searchTerm);
-        currentUrl.searchParams.set('recipe_page', '1');
-        if (limit !== null) {
-            currentUrl.searchParams.set('recipe_limit', limit);
-        }
-        
-        // Preserve scroll position by storing current position
-        const scrollPosition = window.pageYOffset;
-        sessionStorage.setItem('scrollPosition', scrollPosition);
-        
-        window.location.href = currentUrl.toString();
-    }
-
-    // Real-time search untuk resep
-    document.getElementById('search_recipe').addEventListener('input', function() {
-        const searchTerm = this.value;
-        clearTimeout(searchTimeoutRecipe);
-        searchTimeoutRecipe = setTimeout(() => {
-            applySearchRealtimeRecipe(searchTerm);
-        }, 500);
-    });
-
-    // Real-time limit change untuk resep
-    document.getElementById('recipe_limit').addEventListener('change', function() {
-        const limit = this.value;
-        const searchTerm = document.getElementById('search_recipe').value;
-        clearTimeout(limitTimeoutRecipe);
-        limitTimeoutRecipe = setTimeout(() => {
-            applySearchRealtimeRecipe(searchTerm, limit);
-        }, 100);
-    });
-
-    // Enter key support untuk search
-    document.getElementById('search_recipe').addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-            clearTimeout(searchTimeoutRecipe);
-            applySearchRealtimeRecipe(this.value);
-        }
-    });
-
-    // Restore scroll position after page load
-    window.addEventListener('load', function() {
-        const scrollPosition = sessionStorage.getItem('scrollPosition');
-        if (scrollPosition) {
-            window.scrollTo(0, parseInt(scrollPosition));
-            sessionStorage.removeItem('scrollPosition');
-        }
-    });
-</script>
+<script src="/cornerbites-sia/assets/js/resep_produk.js"></script>
 
 <?php include_once __DIR__ . '/../includes/footer.php'; ?>
