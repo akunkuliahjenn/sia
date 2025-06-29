@@ -136,8 +136,8 @@ if (isset($_SESSION['transaction_message'])) {
                 <!-- Form Transaksi -->
                 <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
                     <div class="flex items-center mb-6">
-                        <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="p-2 bg-red-100 rounded-lg mr-3">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
                         </div>

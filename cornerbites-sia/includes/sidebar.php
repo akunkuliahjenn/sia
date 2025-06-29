@@ -1,4 +1,3 @@
-
 <?php 
 // includes/sidebar.php 
 // File ini berisi struktur sidebar navigasi, disesuaikan berdasarkan role pengguna. 
@@ -12,14 +11,14 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
 
 <aside class="flex flex-col w-64 bg-gray-50 shadow-xl border-r border-gray-200">
     <!-- Logo Aplikasi -->
-    <div class="flex items-center justify-center h-20 bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg">
+    <div class="flex items-center justify-center h-20 bg-gradient-to-r from-gray-100 to-gray-200 shadow-lg border-b border-gray-300">
         <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
                 </svg>
             </div>
-            <span class="text-lg font-bold text-white tracking-wide">Corner Bites SIA</span>
+            <span class="text-lg font-bold text-gray-800 tracking-wide">Manajemen SIA</span>
         </div>
     </div>
 
@@ -121,11 +120,40 @@ $current_dir = basename(dirname($_SERVER['PHP_SELF']));
 
     <!-- Tombol Logout di bagian bawah sidebar -->
     <div class="p-4 border-t border-gray-100">
-        <a href="/cornerbites-sia/auth/logout.php" class="flex items-center justify-center py-3 px-4 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg transform hover:scale-[1.02]">
+        <button id="logout-btn" class="flex items-center justify-center py-3 px-4 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg transform hover:scale-[1.02] w-full">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
             </svg>
             Logout
-        </a>
+        </button>
     </div>
+
+    <!-- Custom Logout Modal -->
+    <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-200">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="p-3 bg-red-100 rounded-full mr-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Konfirmasi Logout</h3>
+                        <p class="text-sm text-gray-600">Apakah Anda yakin ingin keluar dari sistem?</p>
+                    </div>
+                </div>
+                <div class="flex space-x-3 justify-end">
+                    <button id="cancel-logout" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition duration-200 font-medium">
+                        Batal
+                    </button>
+                    <button id="confirm-logout" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200 font-medium">
+                        Ya, Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/cornerbites-sia/assets/js/sidebar.js"></script>
 </aside>
